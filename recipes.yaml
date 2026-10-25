@@ -26,8 +26,7 @@ recipes:
       - olive oil
       - tomato
       - oregano
-    instructions: "drizzle olive oil and rub garlic and add  parmesan. Marinated tomato, parsley
-(Optional); olive oil, and oregano"
+    instructions: "drizzle olive oil and rub garlic and add  parmesan. Marinated tomato, parsley (Optional); olive oil, and oregano"
 
   - name: "Paneer Parathaa"
     type: 'dinner'
@@ -212,6 +211,51 @@ recipes:
       - peas
       - corn
       - bell pepper
+      - paneer
+    instructions: "https://www.youtube.com/watch?v=V4Ikh2PhuXo"
+  - name: "Aloo Bhaja"
+    type: 'dinner'
+    ingredients:
+      - Onion
+      - Potato
     instructions: "add here"
+  - name: "South indian style aloo"
+    type: 'lunch'
+    ingredients:
+      - Onion
+      - Potato
+      - tomato
+    instructions: "saute onion. add tomato gravy. add boiled potato"
+  - name: "Paneer Bhurjee"
+    type: 'lunch'
+    ingredients:
+      - Onion
+      - Paneer
+      - tomato
+      - chili
+      - ginger garlic paste
+    instructions: "add here"
+  - name: "Paneer Bhurjee"
+    type: 'lunch'
+    ingredients:
+      - Onion
+      - Paneer
+      - tomato
+      - chili
+      - ginger garlic paste
+    instructions: "add here"
+  - name: "Paneer Sandwich"
+    type: 'lunch'
+    ingredients:
+      - Onion
+      - Paneer
+      - Bell pepper
+      - chili
+      - ginger garlic paste
+      - Curd
+      - Bread
+    instructions: "https://www.youtube.com/watch?v=WZW_iUjykBQ"
+
+  
 
    
