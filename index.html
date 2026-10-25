@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantry Recipe Finder</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- js-yaml library to parse YAML in the browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+
+  <!-- Top Navigation / Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center space-x-2">
+        <span class="text-3xl">🍳</span>
+        <div>
+          <h1 class="text-xl font-bold text-gray-900 leading-tight">Pantry Recipe Finder</h1>
+          <p class="text-xs text-gray-500">Discover what you can cook from your YAML database</p>
+        </div>
+      </div>
+      
+      <!-- YAML Path Config Input -->
+      <div class="flex items-center gap-2">
+        <input 
+          type="text" 
+          id="yamlPath" 
+          value="recipes.yaml" 
+          placeholder="Path to recipes.yaml" 
+          class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none w-56 md:w-64"
+        />
+        <button 
+          onclick="loadYamlDatabase()" 
+          class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+          Load YAML
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Status Notification -->
+  <div class="max-w-7xl mx-auto px-4 pt-4">
+    <div id="statusMessage" class="hidden text-sm p-3 rounded-lg border"></div>
+  </div>
+
+  <!-- Main 2-Column Dashboard Layout -->
+  <div id="appUI" class="max-w-7xl mx-auto px-4 py-6 hidden">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: Pantry Checkboxes & Controls -->
+      <aside class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+        
+        <!-- Meal Type Filter Dropdown -->
+        <div class="mb-6 pb-5 border-b border-gray-200">
+          <label for="mealTypeFilter" class="block text-sm font-bold text-gray-700 mb-2">
+            🍽️ Meal Type
+          </label>
+          <select 
+            id="mealTypeFilter" 
+            onchange="renderRecipes()" 
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+            <option value="All">All Meal Types</option>
+          </select>
+        </div>
+
+        <!-- Custom Extra Ingredients Input -->
+        <div class="mb-6 pb-5 border-b border-gray-200">
+          <label for="customIngredients" class="block text-sm font-bold text-gray-700 mb-2">
+            ➕ Custom Extra Items
+          </label>
+          <input 
+            type="text" 
+            id="customIngredients" 
+            placeholder="e.g. spinach, beans" 
+            oninput="renderRecipes()"
+            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+          />
+          <p class="text-xs text-gray-400 mt-1">Comma-separated extra items</p>
+        </div>
+
+        <!-- Checkbox Ingredient List -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-sm font-bold text-gray-700">🛒 Select Pantry Items</h2>
+            <button onclick="clearAllCheckboxes()" class="text-xs text-emerald-600 hover:underline font-medium">Clear all</button>
+          </div>
+          
+          <div id="checkboxContainer" class="space-y-2 pr-1">
+            <!-- Checkboxes will be populated dynamically -->
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- RIGHT COLUMN: Recipe Cards Results -->
+      <main class="lg:col-span-3 space-y-4">
+        <div class="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-gray-200 shadow-sm">
+          <h2 class="text-lg font-bold text-gray-800">📖 Matching Recipes</h2>
+          <span id="matchCount" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
+            0 matches found
+          </span>
+        </div>
+
+        <!-- Cards List -->
+        <div id="recipeResults" class="space-y-4">
+          <!-- Recipe cards rendered here -->
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <script>
+    let globalRecipes = [];
+    const defaultStaples = ["bread", "butter", "cheese", "eggs", "garlic", "salt", "pepper", "olive oil"];
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadYamlDatabase();
+    });
+
+    async function loadYamlDatabase() {
+      const pathInput = document.getElementById('yamlPath').value.trim();
+      const statusDiv = document.getElementById('statusMessage');
+      const appUI = document.getElementById('appUI');
+
+      statusDiv.className = 'text-sm p-3 rounded-lg border block bg-blue-50 text-blue-700 border-blue-200';
+      statusDiv.innerHTML = '⏳ Loading YAML database...';
+
+      try {
+        const response = await fetch(pathInput);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: Could not load file at '${pathInput}'`);
+        }
+        const yamlText = await response.text();
+        const parsedData = jsyaml.load(yamlText);
+
+        if (!parsedData || !parsedData.recipes || !Array.isArray(parsedData.recipes)) {
+          throw new Error("Invalid YAML structure. Expected a root 'recipes:' list.");
+        }
+
+        globalRecipes = parsedData.recipes;
+
+        statusDiv.className = 'text-sm p-3 rounded-lg border block bg-emerald-50 text-emerald-700 border-emerald-200';
+        statusDiv.innerHTML = `✅ Successfully loaded <strong>${globalRecipes.length}</strong> recipes from <code>${pathInput}</code>!`;
+
+        initUI();
+        appUI.classList.remove('hidden');
+
+      } catch (err) {
+        statusDiv.className = 'text-sm p-3 rounded-lg border block bg-red-50 text-red-700 border-red-200';
+        statusDiv.innerHTML = `❌ Error: ${err.message}`;
+        appUI.classList.add('hidden');
+      }
+    }
+
+    function initUI() {
+      // 1. Populate Meal Type Select Filter
+      const typeFilter = document.getElementById('mealTypeFilter');
+      const typesSet = new Set();
+      globalRecipes.forEach(r => {
+        if (r.type) typesSet.add(r.type.trim().toLowerCase());
+      });
+
+      typeFilter.innerHTML = '<option value="All">All Meal Types</option>';
+      Array.from(typesSet).sort().forEach(type => {
+        const opt = document.createElement('option');
+        opt.value = type;
+        opt.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+        typeFilter.appendChild(opt);
+      });
+
+      // 2. Aggregate unique ingredients (DB ingredients + default staples)
+      const ingredientSet = new Set(defaultStaples);
+      globalRecipes.forEach(r => {
+        if (Array.isArray(r.ingredients)) {
+          r.ingredients.forEach(ing => ingredientSet.add(ing.trim().toLowerCase()));
+        }
+      });
+
+      const sortedIngredients = Array.from(ingredientSet).sort();
+      const checkboxContainer = document.getElementById('checkboxContainer');
+      checkboxContainer.innerHTML = '';
+
+      const autoPreselect = ["bread", "butter", "cheese", "eggs"];
+
+      // Render Checkboxes
+      sortedIngredients.forEach((ing, index) => {
+        const isChecked = autoPreselect.includes(ing);
+        const capitalized = ing.charAt(0).toUpperCase() + ing.slice(1);
+        
+        const label = document.createElement('label');
+        label.className = "flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border border-transparent hover:border-gray-200";
+
+        label.innerHTML = `
+          <input 
+            type="checkbox" 
+            value="${ing}" 
+            ${isChecked ? 'checked' : ''} 
+            onchange="renderRecipes()"
+            class="ingredient-checkbox w-4 h-4 text-emerald-600 focus:ring-emerald-500 rounded border-gray-300"
+          />
+          <span class="font-medium">${capitalized}</span>
+        `;
+        checkboxContainer.appendChild(label);
+      });
+
+      renderRecipes();
+    }
+
+    function clearAllCheckboxes() {
+      document.querySelectorAll('.ingredient-checkbox').forEach(cb => cb.checked = false);
+      renderRecipes();
+    }
+
+    function getActivePantry() {
+      const checkedBoxes = document.querySelectorAll('.ingredient-checkbox:checked');
+      const checkedIngredients = Array.from(checkedBoxes).map(cb => cb.value.toLowerCase());
+
+      const customInput = document.getElementById('customIngredients').value;
+      const customItems = customInput
+        .split(',')
+        .map(i => i.trim().toLowerCase())
+        .filter(i => i.length > 0);
+
+      return new Set([...checkedIngredients, ...customItems]);
+    }
+
+    function renderRecipes() {
+      const pantry = getActivePantry();
+      const selectedType = document.getElementById('mealTypeFilter').value.toLowerCase();
+      const resultsContainer = document.getElementById('recipeResults');
+      const matchCountBadge = document.getElementById('matchCount');
+
+      resultsContainer.innerHTML = '';
+
+      if (pantry.size === 0) {
+        matchCountBadge.textContent = '0 matches';
+        resultsContainer.innerHTML = `
+          <div class="bg-white p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
+            <span class="text-4xl block mb-2">🛒</span>
+            <p class="font-medium">Your pantry is empty!</p>
+            <p class="text-xs text-gray-400 mt-1">Check some items on the left sidebar to start finding recipes.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Filter by Meal Type
+      let activeRecipes = globalRecipes;
+      if (selectedType !== 'all') {
+        activeRecipes = globalRecipes.filter(r => r.type && r.type.trim().toLowerCase() === selectedType);
+      }
+
+      // Calculate matches
+      const matchedRecipes = [];
+      activeRecipes.forEach(r => {
+        const recipeIngs = (r.ingredients || []).map(i => i.trim().toLowerCase());
+        if (recipeIngs.length === 0) return;
+
+        const available = recipeIngs.filter(i => pantry.has(i));
+        const missing = recipeIngs.filter(i => !pantry.has(i));
+
+        if (available.length > 0) {
+          const matchPct = Math.round((available.length / recipeIngs.length) * 100);
+          matchedRecipes.push({
+            name: r.name || "Unnamed Recipe",
+            type: r.type ? r.type.charAt(0).toUpperCase() + r.type.slice(1) : "General",
+            matchPct,
+            available,
+            missing,
+            instructions: r.instructions || "No instructions provided."
+          });
+        }
+      });
+
+      // Sort by best match percentage
+      matchedRecipes.sort((a, b) => b.matchPct - a.matchPct);
+      matchCountBadge.textContent = `${matchedRecipes.length} ${matchedRecipes.length === 1 ? 'match' : 'matches'} found`;
+
+      if (matchedRecipes.length === 0) {
+        resultsContainer.innerHTML = `
+          <div class="bg-white p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
+            <span class="text-4xl block mb-2">🔍</span>
+            <p class="font-medium">No matching recipes found.</p>
+            <p class="text-xs text-gray-400 mt-1">Try selecting more ingredients or changing the meal type filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render Cards on the right side
+      matchedRecipes.forEach(recipe => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition hover:shadow-md";
+
+        const headerHtml = `
+          <div class="flex items-center justify-between border-b pb-3 mb-4 gap-2">
+            <div>
+              <h3 class="text-xl font-bold text-gray-800">${recipe.name}</h3>
+              <span class="inline-block mt-1 px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700 rounded-full border border-gray-200">${recipe.type}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-lg font-extrabold ${recipe.matchPct === 100 ? 'text-emerald-600' : 'text-amber-600'}">
+                ${recipe.matchPct}% Match
+              </span>
+            </div>
+          </div>
+        `;
+
+        const missingHtml = recipe.missing.length > 0 
+          ? `<p class="text-sm text-red-600 mb-2">❌ <strong>Missing:</strong> ${recipe.missing.join(', ')}</p>`
+          : `<p class="text-sm text-emerald-600 mb-2">🎉 <strong>You have all ingredients!</strong></p>`;
+
+        const availableHtml = `<p class="text-sm text-gray-600 mb-4">✅ <strong>You have:</strong> ${recipe.available.join(', ')}</p>`;
+        const instructionsHtml = `<div class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 leading-relaxed border border-gray-100"><strong>Instructions:</strong><br>${recipe.instructions}</div>`;
+
+        card.innerHTML = headerHtml + missingHtml + availableHtml + instructionsHtml;
+        resultsContainer.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
