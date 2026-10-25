@@ -1,0 +1,217 @@
+recipes:
+  - name: "Garlic Bread"
+    type: 'dinner'
+    ingredients:
+      - bread
+      - garlic
+      - butter
+      - cheese
+    instructions: "Bake at 350 degrees."
+
+  - name: "Cheese Clili Toast"
+    type: 'dinner'
+    ingredients:
+      - bread
+      - chili
+      - butter
+      - cheese
+    instructions: "Bake bread with butter. Add cheese on top with chilis."
+
+  - name: "Bruschetta"
+    type: 'dinner'
+    ingredients:
+      - bread
+      - garlic
+      - Parmesan
+      - olive oil
+      - tomato
+      - oregano
+    instructions: "drizzle olive oil and rub garlic and add  parmesan. Marinated tomato, parsley
+(Optional); olive oil, and oregano"
+
+  - name: "Paneer Parathaa"
+    type: 'dinner'
+    ingredients:
+      - paneer
+      - aata
+      - ginger garlic paste
+    instructions: "Butter bread, place cheese between slices, and grill until golden."
+  - name: "White Pasta"
+    type: 'dinner'
+    ingredients:
+      - pasta
+      - garlic
+      - butter
+      - cheese
+      - milk
+      - green bell pepper
+      - onions
+    instructions: "Boil pasta. Sauté garlic in butter, toss with pasta and top with parmesan."
+
+  - name: "Red Pasta"
+    type: 'dinner'
+    ingredients:
+      - green bell pepper
+      - onions
+      - tomato
+      - oregano
+      - pasta
+      - cheese
+    instructions: "chopped tomato, onion and bell peppers. Add boiled pasta."
+
+  - name: "Sev Puri"
+    type: 'snack'
+    ingredients:
+      - Sev
+      - Puri
+      - Onion
+      - tomato
+      - green chutney
+      - tamarind chutney
+    instructions: "Assemble all ingredients"
+
+  - name: "Uttapam"
+    type: 'dinner'
+    ingredients:
+      - Sooji
+      - onion
+      - tomato
+      - curd
+      - chili
+    instructions: "Make the batter for 15 mins. And add veggies"
+  - name: "aloo paratha"
+    type: 'dinner'
+    ingredients:
+      - potato
+      - aata
+      - curd
+      - chili
+    instructions: "add here"
+  - name: "cheese paneer paratha"
+    type: 'dinner'
+    ingredients:
+      - paneer
+      - cheese
+      - aata
+      - curd
+      - chili
+    instructions: "add here"
+  - name: "palak Paneer"
+    type: 'dinner'
+    ingredients:
+      - paneer
+      - aata
+      - spinach
+      - curd
+      - ginger
+      - garlic
+      - chili
+    instructions: "add here"
+  - name: "shahi Paneer"
+    type: 'dinner'
+    ingredients:
+      - paneer
+      - onion
+      - tomato
+      - cashews
+    instructions: "add here"
+  - name: "Paneer Butter Masala"
+    type: 'dinner'
+    ingredients:
+      - paneer
+      - onion
+      - tomato
+      - cashews
+      - butter
+      - chili
+    instructions: "add here"
+  - name: "Cheese Butter Masala"
+    type: 'dinner'
+    ingredients:
+      - cheese
+      - onion
+      - tomato
+      - cashews
+      - butter
+      - chili
+    instructions: "add here"
+  - name: "Chole"
+    type: 'lunch'
+    ingredients:
+      - chole
+      - onion
+      - tomato
+      - ginger
+      - chili
+    instructions: "add here"
+  - name: "Masala Papad"
+    type: 'snack'
+    ingredients:
+      - papad
+      - onion
+      - tomato
+    instructions: "add here"
+  - name: "Bhel"
+    type: 'snack'
+    ingredients:
+      - green chutney
+      - mamra
+      - onion
+      - tomato
+      - tamarind chutney
+      - potato
+      - Chavanu
+      - puri
+    instructions: "add here"
+  - name: "Idli"
+    type: 'dinner'
+    ingredients:
+      - Batter
+      - coconut chutney
+    instructions: "add here"
+  - name: "Sambhar"
+    type: 'dinner'
+    ingredients:
+      - onion
+      - tomato
+      - toor dal
+    instructions: "add here"
+  - name: "Dosa"
+    type: 'dinner'
+    ingredients:
+      - Batter
+      - coconut chutney
+    instructions: "add here"
+  - name: "white Dhokla"
+    type: 'dinner'
+    ingredients:
+      - Batter
+    instructions: "add here"
+  - name: "yellow Dhokla"
+    type: 'dinner'
+    ingredients:
+      - Batter
+    instructions: "add here"
+  - name: "rava Dhokla"
+    type: 'dinner'
+    ingredients:
+      - sooji
+      - curd
+    instructions: "add here"
+  - name: "Khaman"
+    type: 'dinner'
+    ingredients:
+      - Batter
+    instructions: "add here"
+  - name: "Mix Veg Sabji"
+    type: 'dinner'
+    ingredients:
+      - Onion
+      - tomato
+      - carrot
+      - peas
+      - corn
+      - bell pepper
+    instructions: "add here"
+
+   
