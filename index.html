@@ -6,34 +6,34 @@
   <title>Pantry Recipe Finder</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- js-yaml library to parse YAML in the browser -->
+  <!-- js-yaml library to parse YAML in browser -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 </head>
-<body class="bg-gray-100 min-h-screen font-sans text-gray-800">
+<body class="bg-gray-100 min-h-screen font-sans text-gray-800 pb-20 lg:pb-8">
 
-  <!-- Top Navigation / Header -->
-  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="flex items-center space-x-2">
-        <span class="text-3xl">🍳</span>
+        <span class="text-2xl sm:text-3xl">🍳</span>
         <div>
-          <h1 class="text-xl font-bold text-gray-900 leading-tight">Pantry Recipe Finder</h1>
-          <p class="text-xs text-gray-500">Discover what you can cook from your YAML database</p>
+          <h1 class="text-lg sm:text-xl font-bold text-gray-900 leading-tight">Pantry Recipe Finder</h1>
+          <p class="text-xs text-gray-500">Discover recipes from your YAML database</p>
         </div>
       </div>
       
-      <!-- YAML Path Config Input -->
-      <div class="flex items-center gap-2">
+      <!-- YAML Path Config -->
+      <div class="flex items-center gap-2 w-full sm:w-auto">
         <input 
           type="text" 
           id="yamlPath" 
           value="recipes.yaml" 
           placeholder="Path to recipes.yaml" 
-          class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none w-56 md:w-64"
+          class="flex-1 sm:w-56 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
         />
         <button 
           onclick="loadYamlDatabase()" 
-          class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm">
+          class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-sm font-medium rounded-lg transition-colors shadow-sm shrink-0">
           Load YAML
         </button>
       </div>
@@ -41,32 +41,54 @@
   </header>
 
   <!-- Status Notification -->
-  <div class="max-w-7xl mx-auto px-4 pt-4">
+  <div class="max-w-7xl mx-auto px-4 pt-3">
     <div id="statusMessage" class="hidden text-sm p-3 rounded-lg border"></div>
   </div>
 
-  <!-- Main 2-Column Dashboard Layout -->
-  <div id="appUI" class="max-w-7xl mx-auto px-4 py-6 hidden">
+  <!-- Main App Layout -->
+  <div id="appUI" class="max-w-7xl mx-auto px-4 py-4 sm:py-6 hidden">
+
+    <!-- Mobile Drawer Toggle Button -->
+    <div class="lg:hidden mb-4">
+      <button 
+        onclick="toggleMobileSidebar()" 
+        class="w-full py-3 px-4 bg-white border border-gray-200 rounded-xl shadow-sm flex items-center justify-between text-gray-800 font-bold text-sm active:bg-gray-50">
+        <span class="flex items-center gap-2">
+          <span>🛒</span> Filter & Ingredients
+        </span>
+        <span id="mobileSidebarBadge" class="text-xs font-semibold px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full">
+          0 selected
+        </span>
+      </button>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
       
-      <!-- LEFT COLUMN: Pantry Checkboxes & Controls -->
-      <aside class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
+      <!-- LEFT COLUMN / MOBILE DRAWER: Pantry Controls -->
+      <aside 
+        id="sidebarDrawer" 
+        class="hidden lg:block lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-5 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto z-10">
         
+        <div class="flex items-center justify-between lg:hidden pb-3 border-b mb-4">
+          <h2 class="font-bold text-gray-800">🛒 Pantry Filters</h2>
+          <button onclick="toggleMobileSidebar()" class="text-gray-400 hover:text-gray-600 text-xl font-bold px-2">&times;</button>
+        </div>
+
         <!-- Meal Type Filter Dropdown -->
-        <div class="mb-6 pb-5 border-b border-gray-200">
+        <div class="mb-5 pb-4 border-b border-gray-200">
           <label for="mealTypeFilter" class="block text-sm font-bold text-gray-700 mb-2">
             🍽️ Meal Type
           </label>
           <select 
             id="mealTypeFilter" 
             onchange="renderRecipes()" 
-            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
             <option value="All">All Meal Types</option>
           </select>
         </div>
 
-        <!-- Custom Extra Ingredients Input -->
-        <div class="mb-6 pb-5 border-b border-gray-200">
+        <!-- Custom Extra Ingredients -->
+        <div class="mb-5 pb-4 border-b border-gray-200">
           <label for="customIngredients" class="block text-sm font-bold text-gray-700 mb-2">
             ➕ Custom Extra Items
           </label>
@@ -75,7 +97,7 @@
             id="customIngredients" 
             placeholder="e.g. spinach, beans" 
             oninput="renderRecipes()"
-            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+            class="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
           />
           <p class="text-xs text-gray-400 mt-1">Comma-separated extra items</p>
         </div>
@@ -84,11 +106,11 @@
         <div>
           <div class="flex items-center justify-between mb-3">
             <h2 class="text-sm font-bold text-gray-700">🛒 Select Pantry Items</h2>
-            <button onclick="clearAllCheckboxes()" class="text-xs text-emerald-600 hover:underline font-medium">Clear all</button>
+            <button onclick="clearAllCheckboxes()" class="text-xs text-emerald-600 hover:underline font-medium p-1">Clear all</button>
           </div>
           
-          <div id="checkboxContainer" class="space-y-2 pr-1">
-            <!-- Checkboxes will be populated dynamically -->
+          <div id="checkboxContainer" class="space-y-1.5 pr-1">
+            <!-- Dynamic checkboxes -->
           </div>
         </div>
 
@@ -96,20 +118,32 @@
 
       <!-- RIGHT COLUMN: Recipe Cards Results -->
       <main class="lg:col-span-3 space-y-4">
-        <div class="flex items-center justify-between bg-white px-5 py-3 rounded-xl border border-gray-200 shadow-sm">
-          <h2 class="text-lg font-bold text-gray-800">📖 Matching Recipes</h2>
+        <div class="flex items-center justify-between bg-white px-4 py-3 rounded-xl border border-gray-200 shadow-sm">
+          <h2 class="text-base sm:text-lg font-bold text-gray-800">📖 Matching Recipes</h2>
           <span id="matchCount" class="text-xs font-semibold px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200">
-            0 matches found
+            0 matches
           </span>
         </div>
 
-        <!-- Cards List -->
+        <!-- Cards Container -->
         <div id="recipeResults" class="space-y-4">
-          <!-- Recipe cards rendered here -->
+          <!-- Rendered recipe cards -->
         </div>
       </main>
 
     </div>
+  </div>
+
+  <!-- Fixed Bottom Bar for Mobile Devices -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 lg:hidden flex items-center justify-between shadow-lg z-20">
+    <div class="text-xs text-gray-600">
+      <span id="bottomPantryCount" class="font-bold text-gray-900">0 items</span> in pantry
+    </div>
+    <button 
+      onclick="toggleMobileSidebar()" 
+      class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-bold rounded-lg shadow-sm">
+      Toggle Ingredients 🛒
+    </button>
   </div>
 
   <script>
@@ -119,6 +153,11 @@
     window.addEventListener('DOMContentLoaded', () => {
       loadYamlDatabase();
     });
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById('sidebarDrawer');
+      sidebar.classList.toggle('hidden');
+    }
 
     async function loadYamlDatabase() {
       const pathInput = document.getElementById('yamlPath').value.trim();
@@ -156,7 +195,7 @@
     }
 
     function initUI() {
-      // 1. Populate Meal Type Select Filter
+      // 1. Populate Meal Type Dropdown Filter
       const typeFilter = document.getElementById('mealTypeFilter');
       const typesSet = new Set();
       globalRecipes.forEach(r => {
@@ -171,7 +210,7 @@
         typeFilter.appendChild(opt);
       });
 
-      // 2. Aggregate unique ingredients (DB ingredients + default staples)
+      // 2. Extract Unique Ingredients
       const ingredientSet = new Set(defaultStaples);
       globalRecipes.forEach(r => {
         if (Array.isArray(r.ingredients)) {
@@ -185,13 +224,13 @@
 
       const autoPreselect = ["bread", "butter", "cheese", "eggs"];
 
-      // Render Checkboxes
-      sortedIngredients.forEach((ing, index) => {
+      // Render Checkboxes with Touch-Friendly Hit Targets
+      sortedIngredients.forEach((ing) => {
         const isChecked = autoPreselect.includes(ing);
         const capitalized = ing.charAt(0).toUpperCase() + ing.slice(1);
         
         const label = document.createElement('label');
-        label.className = "flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer text-sm text-gray-700 transition-colors border border-transparent hover:border-gray-200";
+        label.className = "flex items-center space-x-3 p-2.5 rounded-lg hover:bg-gray-50 active:bg-gray-100 cursor-pointer text-sm text-gray-700 border border-transparent hover:border-gray-200 touch-manipulation";
 
         label.innerHTML = `
           <input 
@@ -199,7 +238,7 @@
             value="${ing}" 
             ${isChecked ? 'checked' : ''} 
             onchange="renderRecipes()"
-            class="ingredient-checkbox w-4 h-4 text-emerald-600 focus:ring-emerald-500 rounded border-gray-300"
+            class="ingredient-checkbox w-5 h-5 text-emerald-600 focus:ring-emerald-500 rounded border-gray-300"
           />
           <span class="font-medium">${capitalized}</span>
         `;
@@ -232,16 +271,22 @@
       const selectedType = document.getElementById('mealTypeFilter').value.toLowerCase();
       const resultsContainer = document.getElementById('recipeResults');
       const matchCountBadge = document.getElementById('matchCount');
+      const mobileBadge = document.getElementById('mobileSidebarBadge');
+      const bottomPantryCount = document.getElementById('bottomPantryCount');
+
+      // Update mobile badge counters
+      mobileBadge.textContent = `${pantry.size} selected`;
+      bottomPantryCount.textContent = `${pantry.size} items`;
 
       resultsContainer.innerHTML = '';
 
       if (pantry.size === 0) {
         matchCountBadge.textContent = '0 matches';
         resultsContainer.innerHTML = `
-          <div class="bg-white p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
+          <div class="bg-white p-6 sm:p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
             <span class="text-4xl block mb-2">🛒</span>
             <p class="font-medium">Your pantry is empty!</p>
-            <p class="text-xs text-gray-400 mt-1">Check some items on the left sidebar to start finding recipes.</p>
+            <p class="text-xs text-gray-400 mt-1">Select items from the filter panel to see matching recipes.</p>
           </div>
         `;
         return;
@@ -253,7 +298,7 @@
         activeRecipes = globalRecipes.filter(r => r.type && r.type.trim().toLowerCase() === selectedType);
       }
 
-      // Calculate matches
+      // Compute recipe matches
       const matchedRecipes = [];
       activeRecipes.forEach(r => {
         const recipeIngs = (r.ingredients || []).map(i => i.trim().toLowerCase());
@@ -277,44 +322,42 @@
 
       // Sort by best match percentage
       matchedRecipes.sort((a, b) => b.matchPct - a.matchPct);
-      matchCountBadge.textContent = `${matchedRecipes.length} ${matchedRecipes.length === 1 ? 'match' : 'matches'} found`;
+      matchCountBadge.textContent = `${matchedRecipes.length} ${matchedRecipes.length === 1 ? 'match' : 'matches'}`;
 
       if (matchedRecipes.length === 0) {
         resultsContainer.innerHTML = `
-          <div class="bg-white p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
+          <div class="bg-white p-6 sm:p-8 text-center rounded-xl border border-gray-200 shadow-sm text-gray-500">
             <span class="text-4xl block mb-2">🔍</span>
             <p class="font-medium">No matching recipes found.</p>
-            <p class="text-xs text-gray-400 mt-1">Try selecting more ingredients or changing the meal type filter.</p>
+            <p class="text-xs text-gray-400 mt-1">Try selecting additional ingredients or clearing filters.</p>
           </div>
         `;
         return;
       }
 
-      // Render Cards on the right side
+      // Render Recipe Cards
       matchedRecipes.forEach(recipe => {
         const card = document.createElement('div');
-        card.className = "bg-white p-6 rounded-xl shadow-sm border border-gray-200 transition hover:shadow-md";
+        card.className = "bg-white p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 transition hover:shadow-md";
 
         const headerHtml = `
-          <div class="flex items-center justify-between border-b pb-3 mb-4 gap-2">
+          <div class="flex items-start justify-between border-b pb-3 mb-3 gap-2">
             <div>
-              <h3 class="text-xl font-bold text-gray-800">${recipe.name}</h3>
+              <h3 class="text-lg sm:text-xl font-bold text-gray-800 leading-snug">${recipe.name}</h3>
               <span class="inline-block mt-1 px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-700 rounded-full border border-gray-200">${recipe.type}</span>
             </div>
-            <div class="text-right">
-              <span class="text-lg font-extrabold ${recipe.matchPct === 100 ? 'text-emerald-600' : 'text-amber-600'}">
-                ${recipe.matchPct}% Match
-              </span>
-            </div>
+            <span class="text-base sm:text-lg font-extrabold shrink-0 ${recipe.matchPct === 100 ? 'text-emerald-600' : 'text-amber-600'}">
+              ${recipe.matchPct}% Match
+            </span>
           </div>
         `;
 
         const missingHtml = recipe.missing.length > 0 
-          ? `<p class="text-sm text-red-600 mb-2">❌ <strong>Missing:</strong> ${recipe.missing.join(', ')}</p>`
-          : `<p class="text-sm text-emerald-600 mb-2">🎉 <strong>You have all ingredients!</strong></p>`;
+          ? `<p class="text-xs sm:text-sm text-red-600 mb-1.5">❌ <strong>Missing:</strong> ${recipe.missing.join(', ')}</p>`
+          : `<p class="text-xs sm:text-sm text-emerald-600 mb-1.5">🎉 <strong>You have all ingredients!</strong></p>`;
 
-        const availableHtml = `<p class="text-sm text-gray-600 mb-4">✅ <strong>You have:</strong> ${recipe.available.join(', ')}</p>`;
-        const instructionsHtml = `<div class="bg-gray-50 p-4 rounded-lg text-sm text-gray-700 leading-relaxed border border-gray-100"><strong>Instructions:</strong><br>${recipe.instructions}</div>`;
+        const availableHtml = `<p class="text-xs sm:text-sm text-gray-600 mb-3">✅ <strong>You have:</strong> ${recipe.available.join(', ')}</p>`;
+        const instructionsHtml = `<div class="bg-gray-50 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-gray-700 leading-relaxed border border-gray-100"><strong>Instructions:</strong><br>${recipe.instructions}</div>`;
 
         card.innerHTML = headerHtml + missingHtml + availableHtml + instructionsHtml;
         resultsContainer.appendChild(card);
